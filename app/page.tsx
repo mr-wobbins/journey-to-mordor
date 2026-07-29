@@ -9,9 +9,14 @@ const ERROR_MESSAGES: Record<string, string> = {
   strava_denied: "Strava authorization was cancelled.",
   strava_state: "Security check failed. Please try connecting again.",
   strava_athlete: "Could not read your Strava athlete profile.",
+  strava_token:
+    "Strava rejected the token exchange. Check STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET.",
   strava_callback: "Strava login failed. Check your API credentials.",
-  strava_config: "Strava is not configured on this server yet.",
+  strava_config:
+    "Strava is not configured on this server. STRAVA_CLIENT_ID or STRAVA_CLIENT_SECRET is missing.",
   strava_rate_limit: "Strava is busy — try again in a few minutes.",
+  database:
+    "Signed in with Strava, but the database rejected the write. Run migrations against Neon.",
 };
 
 export const dynamic = "force-dynamic";
@@ -26,7 +31,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
   const params = await searchParams;
   const errorMessage = params.error
-    ? ERROR_MESSAGES[params.error] ?? "Something went wrong."
+    ? (ERROR_MESSAGES[params.error] ?? "Something went wrong.")
     : null;
 
   return (

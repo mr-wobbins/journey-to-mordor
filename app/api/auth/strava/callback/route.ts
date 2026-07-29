@@ -27,16 +27,26 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(appUrl("/?error=strava_state"));
   }
 
+  let token;
   try {
-    const token = await exchangeStravaCode(code);
-    const athlete = token.athlete;
-    if (!athlete?.id) {
-      return NextResponse.redirect(appUrl("/?error=strava_athlete"));
+    token = await exchangeStravaCode(code);
+  } catch (err) {
+    console.error("Strava token exchange failed:", err);
+    if (err instanceof StravaRateLimitError) {
+      return NextResponse.redirect(appUrl("/?error=strava_rate_limit"));
     }
+    return NextResponse.redirect(appUrl("/?error=strava_token"));
+  }
 
-    const name = athleteDisplayName(athlete);
-    const avatarUrl = athlete.profile || athlete.profile_medium || null;
+  const athlete = token.athlete;
+  if (!athlete?.id) {
+    return NextResponse.redirect(appUrl("/?error=strava_athlete"));
+  }
 
+  const name = athleteDisplayName(athlete);
+  const avatarUrl = athlete.profile || athlete.profile_medium || null;
+
+  try {
     const user = await prisma.user.upsert({
       where: { stravaAthleteId: athlete.id },
       create: {
@@ -59,10 +69,7 @@ export async function GET(request: NextRequest) {
     await setSessionCookie(user.id);
     return NextResponse.redirect(appUrl("/dashboard"));
   } catch (err) {
-    console.error("Strava callback failed:", err);
-    if (err instanceof StravaRateLimitError) {
-      return NextResponse.redirect(appUrl("/?error=strava_rate_limit"));
-    }
-    return NextResponse.redirect(appUrl("/?error=strava_callback"));
+    console.error("Strava callback database write failed:", err);
+    return NextResponse.redirect(appUrl("/?error=database"));
   }
 }
