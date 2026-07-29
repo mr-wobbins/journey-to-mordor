@@ -25,6 +25,7 @@ model User {
   updatedAt       DateTime     @updatedAt
   memberships     Membership[]
   activities      Activity[]
+  sentSmsInvites  SmsInvite[]
 
   @@index([stravaAthleteId])
 }
@@ -36,6 +37,7 @@ model Fellowship {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   memberships Membership[]
+  smsInvites  SmsInvite[]
 
   @@index([inviteCode])
 }
@@ -68,4 +70,19 @@ model Activity {
 
   @@index([userId])
   @@index([startedAt])
+}
+
+model SmsInvite {
+  id            String     @id @default(cuid())
+  fellowshipId  String
+  sentById      String
+  phoneHash     String
+  twilioSid     String?    @unique
+  createdAt     DateTime   @default(now())
+  fellowship    Fellowship @relation(fields: [fellowshipId], references: [id], onDelete: Cascade)
+  sentBy        User       @relation(fields: [sentById], references: [id], onDelete: Cascade)
+
+  @@index([fellowshipId])
+  @@index([sentById, createdAt])
+  @@index([phoneHash, createdAt])
 }

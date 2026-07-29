@@ -17,6 +17,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   strava_rate_limit: "Strava is busy — try again in a few minutes.",
   database:
     "Signed in with Strava, but the database rejected the write. Run migrations against Neon.",
+  invalid_invite: "That fellowship invite is invalid or has expired.",
 };
 
 export const dynamic = "force-dynamic";

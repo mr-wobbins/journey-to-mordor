@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import {
   CreateFellowshipForm,
+  InviteFriendForm,
   JoinFellowshipForm,
   LeaveFellowshipButton,
 } from "@/components/fellowship-forms";
@@ -45,7 +46,7 @@ export default async function FellowshipPage() {
           totalMiles,
           place: progress.currentMilestone.name,
         };
-      })
+      }),
     );
 
     leaderboard = totals.sort((a, b) => b.totalMiles - a.totalMiles);
@@ -100,6 +101,19 @@ export default async function FellowshipPage() {
               </div>
             </section>
 
+            <section className="animate-rise-delay max-w-md">
+              <h3 className="font-[family-name:var(--font-display)] text-2xl text-[var(--parchment)]">
+                Invite a friend
+              </h3>
+              <p className="mt-2 text-sm text-[var(--mist)]">
+                We&apos;ll text them a link to connect Strava and join this
+                fellowship.
+              </p>
+              <div className="mt-4">
+                <InviteFriendForm />
+              </div>
+            </section>
+
             <section className="animate-rise-delay">
               <h3 className="font-[family-name:var(--font-display)] text-2xl text-[var(--parchment)]">
                 Leaderboard
@@ -125,7 +139,9 @@ export default async function FellowshipPage() {
                           {entry.name}
                           {entry.userId === user.id ? " (you)" : ""}
                         </p>
-                        <p className="text-sm text-[var(--mist)]">{entry.place}</p>
+                        <p className="text-sm text-[var(--mist)]">
+                          {entry.place}
+                        </p>
                       </div>
                     </div>
                     <span className="tabular-nums text-[var(--leaf)]">

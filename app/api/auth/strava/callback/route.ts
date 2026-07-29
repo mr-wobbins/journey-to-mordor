@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { consumeOAuthStateCookie, setSessionCookie } from "@/lib/session";
+import {
+  clearInviteCookie,
+  consumeOAuthStateCookie,
+  getInviteCookie,
+  setSessionCookie,
+} from "@/lib/session";
 import {
   athleteDisplayName,
   exchangeStravaCode,
@@ -67,6 +72,25 @@ export async function GET(request: NextRequest) {
     });
 
     await setSessionCookie(user.id);
+
+    const inviteCode = await getInviteCookie();
+    if (inviteCode) {
+      const fellowship = await prisma.fellowship.findUnique({
+        where: { inviteCode },
+      });
+      const existing = await prisma.membership.findFirst({
+        where: { userId: user.id },
+      });
+
+      if (fellowship && !existing) {
+        await prisma.membership.create({
+          data: { userId: user.id, fellowshipId: fellowship.id },
+        });
+      }
+      await clearInviteCookie();
+      return NextResponse.redirect(appUrl("/fellowship"));
+    }
+
     return NextResponse.redirect(appUrl("/dashboard"));
   } catch (err) {
     console.error("Strava callback database write failed:", err);

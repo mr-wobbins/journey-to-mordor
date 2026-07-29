@@ -86,6 +86,58 @@ export function JoinFellowshipForm() {
   );
 }
 
+export function InviteFriendForm() {
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      setError(null);
+      setSent(false);
+
+      const phone = String(formData.get("phone") ?? "");
+      const res = await fetch("/api/fellowship/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = (await res.json()) as { error?: string };
+
+      if (!res.ok) {
+        setError(data.error ?? "Could not send the invite");
+        return;
+      }
+      setSent(true);
+    });
+  }
+
+  return (
+    <form action={handleSubmit} className="space-y-3">
+      <label className="block space-y-1 text-sm">
+        <span className="text-[var(--mist)]">Friend&apos;s mobile number</span>
+        <input
+          name="phone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="+1 555 123 4567"
+          required
+          className="w-full rounded-xl border border-[var(--mist)]/25 bg-[var(--deep)]/60 px-3 py-2 text-[var(--parchment)] outline-none focus:border-[var(--ember)]"
+        />
+      </label>
+      <Button type="submit" disabled={pending}>
+        {pending ? "Sending…" : "Text invite"}
+      </Button>
+      <p className="text-xs text-[var(--mist)]">
+        Include the country code. Up to 5 invites per hour.
+      </p>
+      {sent ? <p className="text-sm text-[var(--leaf)]">Invite sent.</p> : null}
+      {error ? <p className="text-sm text-[var(--ash-red)]">{error}</p> : null}
+    </form>
+  );
+}
+
 export function LeaveFellowshipButton() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
