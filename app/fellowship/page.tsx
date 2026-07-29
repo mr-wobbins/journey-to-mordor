@@ -1,10 +1,10 @@
 import { SiteHeader } from "@/components/site-header";
 import {
   CreateFellowshipForm,
-  InviteFriendForm,
   JoinFellowshipForm,
   LeaveFellowshipButton,
 } from "@/components/fellowship-forms";
+import { InviteShare } from "@/components/invite-share";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { formatMiles, getJourneyProgress } from "@/lib/journey";
@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function FellowshipPage() {
   const user = await requireUser();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   const membership = await prisma.membership.findFirst({
     where: { userId: user.id },
@@ -101,16 +102,19 @@ export default async function FellowshipPage() {
               </div>
             </section>
 
-            <section className="animate-rise-delay max-w-md">
+            <section className="animate-rise-delay max-w-xl">
               <h3 className="font-[family-name:var(--font-display)] text-2xl text-[var(--parchment)]">
                 Invite a friend
               </h3>
               <p className="mt-2 text-sm text-[var(--mist)]">
-                We&apos;ll text them a link to connect Strava and join this
-                fellowship.
+                Share this link. Friends connect Strava and join your fellowship
+                automatically.
               </p>
               <div className="mt-4">
-                <InviteFriendForm />
+                <InviteShare
+                  inviteUrl={`${appUrl}/api/invite/${membership.fellowship.inviteCode}`}
+                  fellowshipName={membership.fellowship.name}
+                />
               </div>
             </section>
 

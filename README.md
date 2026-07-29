@@ -10,8 +10,7 @@ Built with Next.js (App Router), Prisma, Neon Postgres, and Strava OAuth — rea
 - Foot activities only: Walk, Run, Hike, TrailRun, VirtualRun, Snowshoe
 - Manual mile entries
 - Middle-earth milestone progress
-- Fellowship create/join via invite code + leaderboard
-- Backend-sent SMS invitations via Twilio
+- Fellowship create/join via invite code + shareable invite link
 - Rate-limit-aware Strava sync (button-only, 5-minute cooldown, incremental fetch)
 
 ## Local setup
@@ -31,12 +30,7 @@ Built with Next.js (App Router), Prisma, Neon Postgres, and Strava OAuth — rea
 
 4. Set `SESSION_SECRET` to a random string (≥ 32 chars).
 
-5. For text invitations, create a Twilio account and messaging-capable phone
-   number. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and
-   `TWILIO_PHONE_NUMBER` (E.164 format, such as `+15551234567`). Trial accounts
-   can generally send only to recipient numbers verified in Twilio.
-
-6. Install, migrate, run:
+5. Install, migrate, run:
 
    ```bash
    pnpm install
@@ -45,6 +39,10 @@ Built with Next.js (App Router), Prisma, Neon Postgres, and Strava OAuth — rea
    ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## Inviting friends
+
+On the Fellowship page, copy or share the invite link. Friends open it, connect Strava, and join automatically. Make sure `NEXT_PUBLIC_APP_URL` matches the URL they will open (production URL on Vercel).
 
 ## Deploy on Vercel
 
@@ -73,9 +71,6 @@ OAuth is supported on **production** (and localhost with a local/dev Strava app)
 | `NEXT_PUBLIC_APP_URL` | `https://YOUR_PROJECT.vercel.app` |
 | `STRAVA_*` | As above |
 | `DATABASE_URL` / `DIRECT_URL` | Neon |
-| `TWILIO_ACCOUNT_SID` | Twilio account credentials |
-| `TWILIO_AUTH_TOKEN` | Twilio secret; server-only |
-| `TWILIO_PHONE_NUMBER` | Messaging-capable E.164 sender number |
 
 ### 4. Migrate & deploy
 

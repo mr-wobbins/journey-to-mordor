@@ -28,7 +28,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full antialiased", figtree.variable, libreBaskerville.variable)}
+      suppressHydrationWarning
+      className={cn(
+        "h-full antialiased",
+        figtree.variable,
+        libreBaskerville.variable,
+      )}
     >
       <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>
