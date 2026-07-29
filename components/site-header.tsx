@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,9 +12,18 @@ export function SiteHeader({ userName }: SiteHeaderProps) {
     <header className="relative z-10 flex items-center justify-between gap-4 px-6 py-5 md:px-10">
       <Link
         href={userName ? "/dashboard" : "/"}
-        className="font-[family-name:var(--font-display)] text-lg tracking-wide text-[var(--ember)] transition-opacity hover:opacity-80"
+        className="flex items-center gap-2.5 font-[family-name:var(--font-display)] text-lg tracking-wide text-[var(--ember)] transition-opacity hover:opacity-80"
       >
-        Journey to Mordor
+        <Image
+          src="/site-logo.png"
+          alt=""
+          width={36}
+          height={36}
+          priority
+          suppressHydrationWarning
+          className="size-9 rounded-full border border-[var(--ember)]/60 object-cover shadow-sm"
+        />
+        <span>Journey to Mordor</span>
       </Link>
       <nav className="flex items-center gap-2 sm:gap-3">
         {userName ? (
