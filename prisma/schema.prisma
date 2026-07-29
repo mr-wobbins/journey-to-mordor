@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ActivitySource {
+  STRAVA
+  MANUAL
+}
+
+model User {
+  id              String       @id @default(cuid())
+  stravaAthleteId Int          @unique
+  name            String
+  avatarUrl       String?
+  accessToken     String
+  refreshToken    String
+  expiresAt       DateTime
+  lastSyncedAt    DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  memberships     Membership[]
+  activities      Activity[]
+
+  @@index([stravaAthleteId])
+}
+
+model Fellowship {
+  id          String       @id @default(cuid())
+  name        String
+  inviteCode  String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
+
+  @@index([inviteCode])
+}
+
+model Membership {
+  id           String     @id @default(cuid())
+  userId       String
+  fellowshipId String
+  joinedAt     DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fellowship   Fellowship @relation(fields: [fellowshipId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fellowshipId])
+  @@index([fellowshipId])
+  @@index([userId])
+}
+
+model Activity {
+  id            String         @id @default(cuid())
+  userId        String
+  source        ActivitySource
+  stravaId      BigInt?        @unique
+  sportType     String
+  name          String
+  distanceMiles Float
+  startedAt     DateTime
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([startedAt])
+}

@@ -1,63 +1,65 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
+import { buttonVariants } from "@/components/ui/button";
+import { SiteHeader } from "@/components/site-header";
+import { getCurrentUser } from "@/lib/auth";
+import { TOTAL_JOURNEY_MILES } from "@/lib/journey";
+import { cn } from "@/lib/utils";
 
-export default function Home() {
+const ERROR_MESSAGES: Record<string, string> = {
+  strava_denied: "Strava authorization was cancelled.",
+  strava_state: "Security check failed. Please try connecting again.",
+  strava_athlete: "Could not read your Strava athlete profile.",
+  strava_callback: "Strava login failed. Check your API credentials.",
+  strava_config: "Strava is not configured on this server yet.",
+  strava_rate_limit: "Strava is busy — try again in a few minutes.",
+};
+
+export const dynamic = "force-dynamic";
+
+type HomeProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const user = await getCurrentUser();
+  if (user) redirect("/dashboard");
+
+  const params = await searchParams;
+  const errorMessage = params.error
+    ? ERROR_MESSAGES[params.error] ?? "Something went wrong."
+    : null;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="relative flex min-h-full flex-1 flex-col overflow-hidden">
+      <div
+        aria-hidden
+        className="mist-layer pointer-events-none absolute inset-x-0 top-0 h-[55vh] bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--mist)_12%,transparent),transparent_70%)]"
+      />
+      <SiteHeader />
+      <main className="relative z-10 flex flex-1 flex-col justify-center px-6 pb-16 pt-8 md:px-10">
+        <div className="mx-auto w-full max-w-3xl">
+          <p className="animate-rise text-sm uppercase tracking-[0.25em] text-[var(--leaf)]">
+            A fellowship walking challenge
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          <h1 className="animate-rise-delay mt-4 font-[family-name:var(--font-display)] text-5xl leading-tight text-[var(--parchment)] md:text-7xl">
+            Journey to Mordor
+          </h1>
+          <p className="animate-rise-delay-2 mt-5 max-w-xl text-lg leading-relaxed text-[var(--mist)]">
+            Sync your walks and runs from Strava, add the odd manual mile, and
+            track {TOTAL_JOURNEY_MILES.toLocaleString()} miles from Hobbiton to
+            Mount Doom — together.
+          </p>
+          <div className="animate-rise-delay-2 mt-10 flex flex-wrap items-center gap-4">
+            <a
+              href="/api/auth/strava"
+              className={cn(buttonVariants({ size: "lg" }))}
+            >
+              Connect with Strava
+            </a>
+          </div>
+          {errorMessage ? (
+            <p className="mt-6 text-sm text-[var(--ash-red)]">{errorMessage}</p>
+          ) : null}
         </div>
       </main>
     </div>
