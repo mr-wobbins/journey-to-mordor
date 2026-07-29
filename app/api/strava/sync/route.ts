@@ -26,7 +26,7 @@ export async function POST() {
           error: "Sync cooldown active. Try again shortly.",
           retryAfterSeconds,
         },
-        { status: 429 }
+        { status: 429 },
       );
     }
   }
@@ -34,9 +34,10 @@ export async function POST() {
   try {
     const { user: authedUser, accessToken } = await getValidAccessToken(user);
 
-    const afterEpoch = authedUser.lastSyncedAt
-      ? Math.floor(authedUser.lastSyncedAt.getTime() / 1000)
-      : 0;
+    // Never import activities from before the athlete joined this app.
+    // After the initial sync, only request activities newer than the last sync.
+    const syncAfter = authedUser.lastSyncedAt ?? authedUser.createdAt;
+    const afterEpoch = Math.floor(syncAfter.getTime() / 1000);
 
     const activities = await fetchAthleteActivities(accessToken, afterEpoch);
     const footActivities = activities.filter(isFootActivity);
@@ -81,14 +82,11 @@ export async function POST() {
   } catch (error) {
     console.error("Strava sync failed:", error);
     if (error instanceof StravaRateLimitError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 429 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 429 });
     }
     return NextResponse.json(
       { error: "Failed to sync with Strava" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
