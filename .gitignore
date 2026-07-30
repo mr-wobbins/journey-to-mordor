@@ -46,3 +46,9 @@ next-env.d.ts
 
 # VS-Code
 *.code-workspace
+
+# Temp
+/temp 
+/tmp 
+*.tmp
+*.temp 
